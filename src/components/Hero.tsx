@@ -25,34 +25,14 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [imgError, setImgError] = useState(false);
-  const [hasDownloaded, setHasDownloaded] = useState(false);
 
-  // Check if browser currently has a previously uploaded photo in localStorage
-  const localUploadedPhoto = typeof window !== 'undefined' ? localStorage.getItem('Rupika_profile_photo') : null;
-
-  // Permanent photo priority:
-  // 1. Direct project file in public folder: PERSONAL_INFO.avatarUrl (e.g. /profile.jpg)
-  // 2. Local uploaded photo if present in this browser session
-  // 3. Fallback to /profile.svg
-  const photoSrc = !imgError
-    ? (PERSONAL_INFO.avatarUrl || localUploadedPhoto || "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg")
-    : (localUploadedPhoto ||  "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg");
+  // Permanent photo from /public/profile.jpg
+  const photoSrc = PERSONAL_INFO.avatarUrl || '/profile.jpg';
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PERSONAL_INFO.email);
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
-  };
-
-  const handleDownloadProfileJpg = () => {
-    if (!localUploadedPhoto) return;
-    const link = document.createElement('a');
-    link.href = localUploadedPhoto;
-    link.download = "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setHasDownloaded(true);
   };
 
   return (
@@ -204,7 +184,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
                 {/* Permanent Photo Element */}
                 <div className="relative">
                   <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl p-[3px] bg-gradient-to-tr from-blue-500 via-indigo-400 to-purple-500 shadow-inner overflow-hidden relative">
-                    {photoSrc ? (
+                    {!imgError && photoSrc ? (
                       <img
                         src={photoSrc}
                         alt={`${PERSONAL_INFO.name} Profile`}
@@ -255,40 +235,15 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
                   </div>
                 </div>
 
-                {/* Permanent File Location Info */}
-                <div className="mt-4 w-full pt-3 border-t border-white/5">
-                  <div className="flex items-center justify-between text-[11px] text-slate-400">
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                      Permanent Image:
-                    </span>
-                    <code className="text-indigo-300 font-mono bg-white/5 px-2 py-0.5 rounded border border-white/10">
-                      /public/profile.jpg
-                    </code>
-                  </div>
-
-                  {/* If user has the uploaded photo in this browser, provide 1-click download as profile.jpg */}
-                  {localUploadedPhoto && (
-                    <div className="mt-3 p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-left">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] text-indigo-200 font-medium">
-                          Export this photo file:
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleDownloadProfileJpg}
-                          className="px-2.5 py-1 text-[11px] font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shadow-sm shrink-0"
-                          title="Save this image file as profile.jpg to drop into your public folder"
-                        >
-                          <Download className="w-3 h-3" />
-                          <span>{hasDownloaded ? 'Downloaded profile.jpg!' : 'Download profile.jpg'}</span>
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-slate-400 mt-1 leading-normal">
-                        Save it to your project's <code className="text-indigo-300">public/</code> folder so it displays permanently on other computers and Vercel!
-                      </p>
-                    </div>
-                  )}
+                {/* Permanent Profile Badge */}
+                <div className="mt-4 w-full pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+                  <span className="flex items-center gap-1.5 text-slate-400">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    Profile Picture
+                  </span>
+                  <span className="text-emerald-400 font-mono text-[11px]">
+                    Permanent
+                  </span>
                 </div>
 
               </div>

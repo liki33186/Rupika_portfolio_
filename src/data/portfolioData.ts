@@ -79,7 +79,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   github: "https://github.com/your-username", // Replace with your GitHub profile
   linkedin: "https://linkedin.com/in/your-username", // Replace with your LinkedIn profile
   // Permanent profile image located in the /public folder (e.g. /public/profile.jpg)
-  avatarUrl: "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg"
+  avatarUrl: "/profile.jpg"
 };
 
 export const SKILLS_DATA: SkillItem[] = [
