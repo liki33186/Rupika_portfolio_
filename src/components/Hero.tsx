@@ -35,8 +35,8 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
   // 2. Local uploaded photo if present in this browser session
   // 3. Fallback to /profile.svg
   const photoSrc = !imgError
-    ? (PERSONAL_INFO.avatarUrl || localUploadedPhoto || ' "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg"')
-    : (localUploadedPhoto || ' "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg"');
+    ? (PERSONAL_INFO.avatarUrl || localUploadedPhoto || "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg")
+    : (localUploadedPhoto ||  "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg");
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PERSONAL_INFO.email);
@@ -48,7 +48,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
     if (!localUploadedPhoto) return;
     const link = document.createElement('a');
     link.href = localUploadedPhoto;
-    link.download = 'profile.jpg';
+    link.download = "C:\Users\DELL\Pictures\Camera Roll\WhatsApp Image 2026-10-22 at 10.07.05 PM.jpeg";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
