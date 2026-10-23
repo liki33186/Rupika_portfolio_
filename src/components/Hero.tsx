@@ -13,10 +13,9 @@ import {
   Code2,
   Terminal,
   ExternalLink,
-  Camera
+  ShieldCheck
 } from 'lucide-react';
 import { PERSONAL_INFO } from '../data/portfolioData';
-import { ImageUploadModal } from './ImageUploadModal';
 
 interface HeroProps {
   onOpenHireMe: () => void;
@@ -25,16 +24,19 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  
-  // Persistent Profile Photo
-  const [customPhotoUrl, setCustomPhotoUrl] = useState<string>(() => {
-    try {
-      return localStorage.getItem('Rupika_profile_photo') || PERSONAL_INFO.avatarUrl || '';
-    } catch (e) {
-      return '';
-    }
-  });
+  const [imgError, setImgError] = useState(false);
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+
+  // Check if browser currently has a previously uploaded photo in localStorage
+  const localUploadedPhoto = typeof window !== 'undefined' ? localStorage.getItem('Rupika_profile_photo') : null;
+
+  // Permanent photo priority:
+  // 1. Direct project file in public folder: PERSONAL_INFO.avatarUrl (e.g. /profile.jpg)
+  // 2. Local uploaded photo if present in this browser session
+  // 3. Fallback to /profile.svg
+  const photoSrc = !imgError
+    ? (PERSONAL_INFO.avatarUrl || localUploadedPhoto || '/profile.svg')
+    : (localUploadedPhoto || '/profile.svg');
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PERSONAL_INFO.email);
@@ -42,17 +44,15 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
-  const handleSaveProfilePhoto = (_id: string, imageDataUrl: string) => {
-    setCustomPhotoUrl(imageDataUrl);
-    try {
-      if (imageDataUrl) {
-        localStorage.setItem('Rupika_profile_photo', imageDataUrl);
-      } else {
-        localStorage.removeItem('Rupika_profile_photo');
-      }
-    } catch (e) {
-      console.warn("Storage quota full, keeping in memory", e);
-    }
+  const handleDownloadProfileJpg = () => {
+    if (!localUploadedPhoto) return;
+    const link = document.createElement('a');
+    link.href = localUploadedPhoto;
+    link.download = 'profile.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setHasDownloaded(true);
   };
 
   return (
@@ -191,7 +191,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
             </div>
           </div>
 
-          {/* Right Column: Visual Photo Placeholder & Interactive Avatar Card */}
+          {/* Right Column: Permanent Visual Profile Picture Card */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
             <div className="relative w-full max-w-sm sm:max-w-md">
               
@@ -201,31 +201,20 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
               {/* Card Container */}
               <div className="relative rounded-3xl glass-panel p-6 sm:p-8 border border-white/15 shadow-2xl flex flex-col items-center text-center">
                 
-                {/* Photo / Avatar Element */}
-                <div
-                  className="relative group cursor-pointer"
-                  onClick={() => setIsImageModalOpen(true)}
-                  title="Click to add or change profile picture"
-                >
-                  <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-2xl p-[3px] bg-gradient-to-tr from-blue-500 via-indigo-400 to-purple-500 shadow-inner overflow-hidden relative">
-                    {customPhotoUrl ? (
+                {/* Permanent Photo Element */}
+                <div className="relative">
+                  <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl p-[3px] bg-gradient-to-tr from-blue-500 via-indigo-400 to-purple-500 shadow-inner overflow-hidden relative">
+                    {photoSrc ? (
                       <img
-                        src={customPhotoUrl}
-                        alt="Rupika C. Profile"
-                        className="w-full h-full object-cover rounded-[14px] group-hover:scale-105 transition-transform duration-300"
+                        src={photoSrc}
+                        alt={`${PERSONAL_INFO.name} Profile`}
+                        className="w-full h-full object-cover rounded-[14px]"
                         referrerPolicy="no-referrer"
-                        onError={() => setCustomPhotoUrl('')}
+                        onError={() => setImgError(true)}
                       />
                     ) : (
                       <div className="w-full h-full bg-[#0a1022] rounded-[14px] flex flex-col items-center justify-center relative overflow-hidden group">
-                        {/* Abstract dark navy backdrop with matrix / grid effect */}
                         <div className="absolute inset-0 bg-gradient-to-b from-blue-950/30 via-indigo-950/40 to-[#070b14]" />
-                        
-                        {/* Subtle geometric circles */}
-                        <div className="absolute w-36 h-36 rounded-full border border-purple-500/20 -top-6 -right-6 pointer-events-none" />
-                        <div className="absolute w-40 h-40 rounded-full border border-blue-500/20 -bottom-8 -left-8 pointer-events-none" />
-
-                        {/* Monogram & Icon */}
                         <div className="relative z-10 flex flex-col items-center">
                           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-600/40 mb-2">
                             <span className="text-2xl font-black text-white tracking-wider">
@@ -241,12 +230,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
                         </div>
                       </div>
                     )}
-
-                    {/* Hover camera overlay hint */}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[14px] flex flex-col items-center justify-center text-white text-xs gap-1 backdrop-blur-[2px]">
-                      <Camera className="w-6 h-6 text-indigo-300" />
-                      <span className="font-semibold text-[11px]">Click to Change</span>
-                    </div>
                   </div>
 
                   {/* Floating verification badge */}
@@ -272,16 +255,40 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
                   </div>
                 </div>
 
-                {/* Add / Change Profile Picture Button */}
-                <div className="mt-4 w-full">
-                  <button
-                    type="button"
-                    onClick={() => setIsImageModalOpen(true)}
-                    className="w-full py-2 px-3 text-xs font-semibold text-purple-200 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
-                  >
-                    <Camera className="w-3.5 h-3.5 text-purple-400" />
-                    <span>{customPhotoUrl ? 'Change Profile Picture' : 'Add Profile Picture'}</span>
-                  </button>
+                {/* Permanent File Location Info */}
+                <div className="mt-4 w-full pt-3 border-t border-white/5">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="flex items-center gap-1 text-slate-400">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      Permanent Image:
+                    </span>
+                    <code className="text-indigo-300 font-mono bg-white/5 px-2 py-0.5 rounded border border-white/10">
+                      /public/profile.jpg
+                    </code>
+                  </div>
+
+                  {/* If user has the uploaded photo in this browser, provide 1-click download as profile.jpg */}
+                  {localUploadedPhoto && (
+                    <div className="mt-3 p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-left">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] text-indigo-200 font-medium">
+                          Export this photo file:
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleDownloadProfileJpg}
+                          className="px-2.5 py-1 text-[11px] font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shadow-sm shrink-0"
+                          title="Save this image file as profile.jpg to drop into your public folder"
+                        >
+                          <Download className="w-3 h-3" />
+                          <span>{hasDownloaded ? 'Downloaded profile.jpg!' : 'Download profile.jpg'}</span>
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 leading-normal">
+                        Save it to your project's <code className="text-indigo-300">public/</code> folder so it displays permanently on other computers and Vercel!
+                      </p>
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -319,16 +326,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenHireMe, onViewProjects }) => {
         </div>
 
       </div>
-
-      {/* Profile Image Modal */}
-      <ImageUploadModal
-        isOpen={isImageModalOpen}
-        onClose={() => setIsImageModalOpen(false)}
-        targetId="profile"
-        targetTitle="Rupika C. Profile Photo"
-        currentImage={customPhotoUrl}
-        onSaveImage={handleSaveProfilePhoto}
-      />
     </section>
   );
 };
