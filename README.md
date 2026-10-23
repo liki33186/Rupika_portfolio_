@@ -101,7 +101,7 @@ A responsive developer portfolio built with **React 19**, **TypeScript**, **Tail
 1. Push your code to GitHub:
    ```bash
    git add .
-   git commit -m "Initial portfolio commit"
+   git commit -m "Update portfolio for Vercel deployment"
    git push origin main
    ```
 2. Go to [Vercel](https://vercel.com) and sign in.
@@ -111,6 +111,7 @@ A responsive developer portfolio built with **React 19**, **TypeScript**, **Tail
    - **Framework Preset:** Vite
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
+   - **Install Command:** Configured in `vercel.json` (`npm install --legacy-peer-deps`) and `.npmrc` (`legacy-peer-deps=true`) to prevent peer dependency resolution errors.
 6. Click **Deploy**. Your site will be live within seconds with free SSL!
 
 ---

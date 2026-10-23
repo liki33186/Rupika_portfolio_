@@ -172,7 +172,8 @@ export const DeploymentModal: React.FC<DeploymentModalProps> = ({ isOpen, onClos
                   <div className="font-mono text-[11px] text-indigo-300 bg-black/40 p-2 rounded">
                     Framework Preset: Vite<br />
                     Build Command: npm run build<br />
-                    Output Directory: dist
+                    Output Directory: dist<br />
+                    Install Command: npm install --legacy-peer-deps (pre-set in vercel.json &amp; .npmrc)
                   </div>
                 </li>
                 <li className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
